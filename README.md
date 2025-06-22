@@ -59,5 +59,3 @@ Apache 2.0
 
 ---
 
-## ✅ `.github/workflows/ci.yml`
-
