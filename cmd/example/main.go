@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -12,12 +13,27 @@ import (
 	jsonrpc2 "github.com/finitology/jsonrpc2/pkg/jsonrpc2"
 )
 
+func add(req *jsonrpc2.Request) (any, *jsonrpc2.Error) {
+	var p struct {
+		A int `json:"a"`
+		B int `json:"b"`
+	}
+	if err := json.Unmarshal(req.Params, &p); err != nil {
+		return nil, jsonrpc2.ErrInvalidParams
+	}
+	return p.A + p.B, nil
+}
+
+func ping(req *jsonrpc2.Request) (any, *jsonrpc2.Error) {
+	log.Println("ping received")
+	return "pong", nil
+}
+
 func main() {
 	router := jsonrpc2.NewRouter()
-	router.Register("ping", func(req *jsonrpc2.Request) (any, *jsonrpc2.Error) {
-		log.Println("ping received")
-		return "pong", nil
-	})
+	router.Register("ping", ping)
+
+	router.Register("add", add)
 
 	server := &http.Server{
 		Addr:    ":8080",

@@ -50,4 +50,4 @@ func (id ID) MarshalJSON() ([]byte, error) {
 const Version = "2.0"
 
 // RawParams is used for lazy decoding
-type RawParams json.RawMessage
+// type RawParams json.RawMessage

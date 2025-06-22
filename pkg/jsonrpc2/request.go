@@ -8,10 +8,10 @@ import (
 
 // Request represents a JSON-RPC 2.0 request object.
 type Request struct {
-	JSONRPC string    `json:"jsonrpc"`
-	Method  string    `json:"method"`
-	Params  RawParams `json:"params,omitempty"`
-	ID      *ID       `json:"id,omitempty"`
+	JSONRPC string          `json:"jsonrpc"`
+	Method  string          `json:"method"`
+	Params  json.RawMessage `json:"params,omitempty"`
+	ID      *ID             `json:"id,omitempty"`
 }
 
 // IsNotification returns true if the request is a notification (no response required)

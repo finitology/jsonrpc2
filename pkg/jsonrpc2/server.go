@@ -35,7 +35,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Handle batch requests
+	// Batch request detection
 	if len(jsonRaw) > 0 && jsonRaw[0] == '[' {
 		var batch []json.RawMessage
 		if err := json.Unmarshal(jsonRaw, &batch); err != nil {
@@ -48,21 +48,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var responses []*Response
+		var responses []json.RawMessage
 		for _, item := range batch {
 			resp := s.handleSingle(item)
 			if resp != nil {
-				responses = append(responses, resp)
+				data, err := resp.Marshal()
+				if err == nil {
+					responses = append(responses, data)
+				}
 			}
 		}
 
 		if len(responses) > 0 {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(responses)
+			w.Write([]byte("[" + joinRawMessages(responses) + "]"))
 		} else {
 			w.WriteHeader(http.StatusNoContent)
 		}
-		return
+		return // ✅ Prevent single-request handling
 	}
 
 	// Single request
@@ -103,4 +106,16 @@ func (s *Server) writeResponse(w http.ResponseWriter, resp *Response) {
 	w.Header().Set("Content-Type", "application/json")
 	data, _ := resp.Marshal()
 	w.Write(data)
+}
+
+// joinRawMessages joins multiple JSON RawMessages into a single JSON array string.
+func joinRawMessages(msgs []json.RawMessage) string {
+	var out []byte
+	for i, m := range msgs {
+		if i > 0 {
+			out = append(out, ',')
+		}
+		out = append(out, m...)
+	}
+	return string(out)
 }
