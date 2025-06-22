@@ -1,11 +1,7 @@
 # jsonrpc2
 
-A pure Go implementation of the JSON-RPC 2.0 specification. Minimal, fast, and dependency-free.
+> A pure Go implementation of the JSON-RPC 2.0 specification. Minimal, fast, and dependency-free.
 
-[![CI](https://github.com/finitology/jsonrpc2/actions/workflows/ci.yml/badge.svg)](https://github.com/finitology/jsonrpc2/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/finitology/jsonrpc2)](https://goreportcard.com/report/github.com/finitology/jsonrpc2)
-[![Go Reference](https://pkg.go.dev/badge/github.com/finitology/jsonrpc2.svg)](https://pkg.go.dev/github.com/finitology/jsonrpc2)
-[![Coverage Status](https://coveralls.io/repos/github/finitology/jsonrpc2/badge.svg?branch=main)](https://coveralls.io/github/finitology/jsonrpc2?branch=main)
 
 [![CI](https://github.com/finitology/jsonrpc2/actions/workflows/ci.yml/badge.svg)](https://github.com/finitology/jsonrpc2/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/finitology/jsonrpc2)](https://goreportcard.com/report/github.com/finitology/jsonrpc2)
