@@ -1,6 +1,9 @@
 package jsonrpc2
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 // HandlerFunc is a function that processes a JSON-RPC request.
 type HandlerFunc func(*Request) (any, *Error)
@@ -19,10 +22,16 @@ func NewRouter() *Router {
 }
 
 // Register associates a method name with a handler.
-func (r *Router) Register(method string, fn HandlerFunc) {
+func (r *Router) Register(method string, fn HandlerFunc) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
+	if _, exists := r.handlers[method]; exists {
+		return fmt.Errorf("method already registered: %q", method)
+	}
+
 	r.handlers[method] = fn
+	return nil
 }
 
 // Get returns the handler for a method, or nil.

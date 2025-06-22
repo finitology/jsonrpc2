@@ -1,10 +1,24 @@
-test:
-	go test ./...
+APP_NAME = example
+PKG = ./pkg/jsonrpc2
 
-fmt:
-	go fmt ./...
+all: build
+
+build:
+	go build -o bin/$(APP_NAME) cmd/example/main.go
 
 run:
-	go run ./cmd/example/main.go
+	go run cmd/example/main.go
 
-.PHONY: test fmt run
+test:
+	go test $(PKG)/... -v -cover
+
+fmt:
+	go fmt $(PKG)/...
+
+lint:
+	go vet $(PKG)/...
+
+clean:
+	rm -rf bin/
+
+.PHONY: all build run test fmt lint clean
