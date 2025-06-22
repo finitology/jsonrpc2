@@ -18,7 +18,7 @@ jobs:
         with:
           go-version: '1.22'
 
-      - name: Install deps
+      - name: Install dependencies
         run: go mod tidy
 
       - name: Build
@@ -27,10 +27,10 @@ jobs:
       - name: Vet
         run: go vet ./...
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: go test ./... -v -coverprofile=coverage.out
 
-      - name: Upload coverage to Coveralls
+      - name: Upload to Coveralls
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

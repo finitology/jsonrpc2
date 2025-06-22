@@ -1,6 +1,7 @@
 package jsonrpc2
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 )
@@ -28,38 +29,76 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := ParseRequest(body)
-	if err != nil {
-		resp := NewErrorResponse(nil, ErrInvalidRequest.WithData(err.Error()))
-		s.writeResponse(w, resp)
+	var jsonRaw json.RawMessage
+	if err := json.Unmarshal(body, &jsonRaw); err != nil {
+		s.writeResponse(w, NewErrorResponse(nil, ErrParse.WithData(err.Error())))
 		return
+	}
+
+	// Handle batch requests
+	if len(jsonRaw) > 0 && jsonRaw[0] == '[' {
+		var batch []json.RawMessage
+		if err := json.Unmarshal(jsonRaw, &batch); err != nil {
+			s.writeResponse(w, NewErrorResponse(nil, ErrInvalidRequest.WithData("invalid batch format")))
+			return
+		}
+
+		if len(batch) == 0 {
+			s.writeResponse(w, NewErrorResponse(nil, ErrInvalidRequest.WithData("empty batch")))
+			return
+		}
+
+		var responses []*Response
+		for _, item := range batch {
+			resp := s.handleSingle(item)
+			if resp != nil {
+				responses = append(responses, resp)
+			}
+		}
+
+		if len(responses) > 0 {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(responses)
+		} else {
+			w.WriteHeader(http.StatusNoContent)
+		}
+		return
+	}
+
+	// Single request
+	resp := s.handleSingle(jsonRaw)
+	if resp != nil {
+		s.writeResponse(w, resp)
+	} else {
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+// handleSingle parses and handles a single JSON-RPC request (not batch).
+func (s *Server) handleSingle(data []byte) *Response {
+	req, err := ParseRequest(data)
+	if err != nil {
+		return NewErrorResponse(nil, ErrInvalidRequest.WithData(err.Error()))
 	}
 
 	handler := s.router.Get(req.Method)
 	if handler == nil {
-		resp := NewErrorResponse(req.ID, ErrMethodNotFound)
-		s.writeResponse(w, resp)
-		return
+		return NewErrorResponse(req.ID, ErrMethodNotFound)
 	}
 
 	result, rpcErr := handler(req)
 
-	// Notification → no response
 	if req.IsNotification() {
-		w.WriteHeader(http.StatusNoContent)
-		return
+		return nil
 	}
 
-	var resp *Response
 	if rpcErr != nil {
-		resp = NewErrorResponse(req.ID, rpcErr)
-	} else {
-		resp = NewSuccess(req.ID, result)
+		return NewErrorResponse(req.ID, rpcErr)
 	}
-
-	s.writeResponse(w, resp)
+	return NewSuccess(req.ID, result)
 }
 
+// writeResponse marshals and writes a response to the HTTP client.
 func (s *Server) writeResponse(w http.ResponseWriter, resp *Response) {
 	w.Header().Set("Content-Type", "application/json")
 	data, _ := resp.Marshal()
