@@ -7,6 +7,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/finitology/jsonrpc2)](https://goreportcard.com/report/github.com/finitology/jsonrpc2)
 [![Go Reference](https://pkg.go.dev/badge/github.com/finitology/jsonrpc2.svg)](https://pkg.go.dev/github.com/finitology/jsonrpc2)
 [![Coverage Status](https://coveralls.io/repos/github/finitology/jsonrpc2/badge.svg?branch=main)](https://coveralls.io/github/finitology/jsonrpc2?branch=main)
+[![Release](https://img.shields.io/github/v/release/finitology/jsonrpc2)](https://github.com/finitology/jsonrpc2/releases)
 
 
 > Minimal, idiomatic, and spec-compliant [JSON-RPC 2.0](https://www.jsonrpc.org/specification) implementation in pure Go (no third-party deps).
