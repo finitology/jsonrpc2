@@ -1,3 +1,3 @@
-module github.com/yourusername/jsonrpc2
+module github.com/finitology/jsonrpc2
 
-go 1.22
+go 1.24.4
